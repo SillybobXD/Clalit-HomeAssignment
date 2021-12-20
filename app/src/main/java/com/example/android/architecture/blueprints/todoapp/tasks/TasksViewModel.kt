@@ -17,14 +17,7 @@ package com.example.android.architecture.blueprints.todoapp.tasks
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.distinctUntilChanged
-import androidx.lifecycle.switchMap
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.example.android.architecture.blueprints.todoapp.Event
 import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.data.Result
@@ -55,7 +48,9 @@ class TasksViewModel(
                 _dataLoading.value = false
             }
         }
-        tasksRepository.observeTasks().distinctUntilChanged().switchMap { filterTasks(it) }
+        tasksRepository.observeTasks().distinctUntilChanged()
+            .switchMap { filterTasks(it) }
+            .switchMap { sortTasks(it) }
     }
 
     val items: LiveData<List<Task>> = _items
@@ -78,6 +73,9 @@ class TasksViewModel(
     private val _snackbarText = MutableLiveData<Event<Int>>()
     val snackbarText: LiveData<Event<Int>> = _snackbarText
 
+    private var _sortBy = MutableLiveData<TasksSortType>()
+    val sortBy: LiveData<TasksSortType> = _sortBy
+
     // Not used at the moment
     private val isDataLoadingError = MutableLiveData<Boolean>()
 
@@ -97,6 +95,7 @@ class TasksViewModel(
     init {
         // Set initial state
         setFiltering(getSavedFilterType())
+        setSorting(getSavedSortingType())
         loadTasks(true)
     }
 
@@ -210,6 +209,26 @@ class TasksViewModel(
         return result
     }
 
+
+    private fun sortTasks(tasksList: List<Task>): LiveData<List<Task>> {
+        val result = MutableLiveData<List<Task>>()
+
+        result.value = when (_sortBy.value) {
+            TasksSortType.ASCENDING -> tasksList.sortedBy { it.priority }
+            else -> tasksList.sortedByDescending { it.priority }
+        }
+
+        return result
+    }
+
+    fun setSorting(sortingType: TasksSortType) {
+        savedStateHandle.set(TASKS_SORT_SAVED_STATE_KEY, sortingType)
+
+        _sortBy.value = sortingType
+        // Refresh list
+        loadTasks(false)
+    }
+
     /**
      * @param forceUpdate Pass in true to refresh the data in the [TasksDataSource]
      */
@@ -232,7 +251,7 @@ class TasksViewModel(
             }
         }
         return tasksToShow
-        }
+    }
 
     fun refresh() {
         _forceUpdate.value = true
@@ -241,7 +260,14 @@ class TasksViewModel(
     private fun getSavedFilterType(): TasksFilterType {
         return savedStateHandle.get(TASKS_FILTER_SAVED_STATE_KEY) ?: ALL_TASKS
     }
+
+    private fun getSavedSortingType(): TasksSortType =
+        savedStateHandle.get(TASKS_SORT_SAVED_STATE_KEY) ?: TasksSortType.DESCENDING
+
 }
 
 // Used to save the current filtering in SavedStateHandle.
 const val TASKS_FILTER_SAVED_STATE_KEY = "TASKS_FILTER_SAVED_STATE_KEY"
+
+// Used to save the current sorting in SavedStateHandle.
+const val TASKS_SORT_SAVED_STATE_KEY = "TASKS_SORT_SAVED_STATE_KEY"

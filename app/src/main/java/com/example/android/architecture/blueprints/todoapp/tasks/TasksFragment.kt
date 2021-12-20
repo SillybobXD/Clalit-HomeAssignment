@@ -78,11 +78,27 @@ class TasksFragment : Fragment() {
                 viewModel.loadTasks(true)
                 true
             }
+            R.id.menu_sort -> {
+                if (viewModel.sortBy.value == TasksSortType.ASCENDING)
+                    viewModel.setSorting(TasksSortType.DESCENDING)
+                else
+                    viewModel.setSorting(TasksSortType.ASCENDING)
+                true
+            }
             else -> false
         }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.tasks_fragment_menu, menu)
+    }
+
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        val icon = when (viewModel.sortBy.value) {
+            TasksSortType.DESCENDING -> android.R.drawable.arrow_down_float
+            else -> android.R.drawable.arrow_up_float
+        }
+        menu.findItem(R.id.menu_sort).setIcon(icon)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -95,6 +111,8 @@ class TasksFragment : Fragment() {
         setupRefreshLayout(viewDataBinding.refreshLayout, viewDataBinding.tasksList)
         setupNavigation()
         setupFab()
+
+        viewModel.sortBy.observe(viewLifecycleOwner) { activity?.invalidateOptionsMenu() }
     }
 
     private fun setupNavigation() {
