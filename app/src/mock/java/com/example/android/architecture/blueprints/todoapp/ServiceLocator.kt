@@ -18,6 +18,8 @@ package com.example.android.architecture.blueprints.todoapp
 import android.content.Context
 import androidx.annotation.VisibleForTesting
 import androidx.room.Room
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.android.architecture.blueprints.todoapp.data.FakeTasksRemoteDataSource
 import com.example.android.architecture.blueprints.todoapp.data.source.DefaultTasksRepository
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksDataSource
@@ -37,6 +39,12 @@ object ServiceLocator {
     @Volatile
     var tasksRepository: TasksRepository? = null
         @VisibleForTesting set
+
+    val MIGRATION_1_2 = object : Migration(1, 2) {
+        override fun migrate(database: SupportSQLiteDatabase) {
+            database.execSQL("ALTER TABLE tasks ADD COLUMN priority INTEGER NOT NULL DEFAULT 0")
+        }
+    }
 
     fun provideTasksRepository(context: Context): TasksRepository {
         synchronized(this) {
@@ -70,7 +78,8 @@ object ServiceLocator {
             Room.databaseBuilder(
                 context.applicationContext,
                 ToDoDatabase::class.java, "Tasks.db"
-            ).build()
+            ).addMigrations(MIGRATION_1_2)
+                .build()
         }
         database = result
         return result

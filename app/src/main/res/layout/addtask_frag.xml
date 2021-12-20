@@ -64,6 +64,15 @@
                         android:textStyle="bold"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
+                    <Spinner
+                        android:id="@+id/add_task_priority_spinner"
+                        android:background="@null"
+                        android:imeOptions="flagNoExtractUi"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:entries="@array/task_priority_array"
+                        android:selectedItemPosition="@={viewmodel.priority}"/>
+
                     <EditText
                         android:id="@+id/add_task_description_edit_text"
                         android:background="@null"

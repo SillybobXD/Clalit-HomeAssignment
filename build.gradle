@@ -4,7 +4,8 @@ buildscript {
     ext.ktlintVersion = '0.33.0'
     repositories {
         google()
-        jcenter()
+//        jcenter()
+        mavenCentral()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.2.1'
@@ -23,7 +24,8 @@ plugins {
 allprojects {
     repositories {
         google()
-        jcenter()
+//        jcenter()
+        mavenCentral()
     }
     apply plugin: 'com.diffplug.spotless'
     spotless {

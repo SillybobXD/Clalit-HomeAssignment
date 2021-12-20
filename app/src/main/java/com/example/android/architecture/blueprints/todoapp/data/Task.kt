@@ -15,9 +15,12 @@
  */
 package com.example.android.architecture.blueprints.todoapp.data
 
+import androidx.annotation.StringRes
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.android.architecture.blueprints.todoapp.R
+import com.example.android.architecture.blueprints.todoapp.TodoApplication
 import java.util.UUID
 
 /**
@@ -27,12 +30,14 @@ import java.util.UUID
  * @param title title of the task
  * @param description description of the task
  * @param isCompleted whether or not this task is completed
+ * @param priority priority of the task, higher number equates to higher priority
  * @param id id of the task
  */
 @Entity(tableName = "tasks")
 data class Task @JvmOverloads constructor(
     @ColumnInfo(name = "title") var title: String = "",
     @ColumnInfo(name = "description") var description: String = "",
+    @ColumnInfo(name = "priority") var priority: Int = 0,
     @ColumnInfo(name = "completed") var isCompleted: Boolean = false,
     @PrimaryKey @ColumnInfo(name = "entryid") var id: String = UUID.randomUUID().toString()
 ) {
@@ -45,4 +50,12 @@ data class Task @JvmOverloads constructor(
 
     val isEmpty
         get() = title.isEmpty() || description.isEmpty()
+
+    @StringRes
+    fun getPriorityTitle() = when (priority) {
+        0 -> R.string.priority_low
+        1 -> R.string.priority_medium
+        else -> R.string.priority_high
+    }
+
 }
