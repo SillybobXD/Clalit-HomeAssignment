@@ -65,10 +65,11 @@
     <string name="priority_low">Low</string>
     <string name="priority_medium">Medium</string>
     <string name="priority_high">High</string>
+    <string name="menu_sort">Sort</string>
+    <string name="task_details">Task Details</string>
 
     <!-- Content Descriptions -->
     <string name="tasks_header_image_content_description">Tasks header image</string>
     <string name="no_tasks_image_content_description">No tasks image</string>
-    <string name="menu_sort">Sort</string>
 
 </resources>
